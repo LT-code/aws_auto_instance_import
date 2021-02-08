@@ -1,1 +1,1 @@
-# aws_auto_instance_import
+# aws_auto_import_deployment_instances

@@ -1,0 +1,10 @@
+[
+  {
+    "Description": "My Server OVA",
+    "Format": "ova",
+    "UserBucket": {
+        "S3Bucket": "my-import-bucket",
+        "S3Key": "vms/my-server-vm.ova"
+    }
+}]
+/mnt/pve/iso-replica-files/images/111/

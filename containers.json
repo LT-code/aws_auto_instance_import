@@ -1,0 +1,10 @@
+[
+  {
+    "Description": "Master mariadb",
+    "Format": "raw",
+    "UserBucket": {
+        "S3Bucket": "proxmox-mariadb-images",
+        "S3Key": "vms/111.raw"
+    }
+  }
+ ]
