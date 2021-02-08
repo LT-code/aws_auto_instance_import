@@ -3,7 +3,7 @@
     "Description": "Master mariadb",
     "Format": "raw",
     "UserBucket": {
-        "S3Bucket": "vm-import/",
+        "S3Bucket": "vm-import-images-epitech-tcloud901",
         "S3Key": "111.raw"
     }
   }
