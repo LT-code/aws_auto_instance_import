@@ -1,5 +1,19 @@
 #!/bin/bash
 
+qemu-img convert /mnt/isofiles/briks/images/111/vm-111-disk-0.qcow2 ./111.raw
+aws s3 cp ./111.raw s3://vm-import/111.raw
+
+aws iam create-role --role-name vmimport --assume-role-policy-document "file://import/trust-policy.json"
+
+aws iam put-role-policy --role-name vmimport --policy-name vmimport --policy-document "file://import/role-policy.json"
+
+aws ec2 import-image --description "My server VM" --disk-containers "file://C:\import\vm-import.json"
+
+# monitoring import
+aws ec2 describe-import-image-tasks --import-task-ids import-ami-1234567890abcdef0
+
+
+
 ADDRESS=10.10.10.0/24
 INSTANCE_ADDRESS=10.10.10.111
 KEYNAME=tcloudvpc-keypair
