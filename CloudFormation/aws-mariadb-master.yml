@@ -1,21 +1,163 @@
-AWSTemplateFormatVersion: "2010-09-09"
+AWSTemplateFormatVersion: 2010-09-09
 Description: A sample template
+  
+##########################
+## StaticParameters
+##########################
+Parameters:
+  KeyName:
+    Description: >-
+      Name of an existing EC2 KeyPair to enable SSH access into the MariaDB web
+      server
+    Type: 'AWS::EC2::KeyPair::KeyName'
+
+##########################
+## Conditions
+##########################
+Conditions:
+  ConfigureMariadbSlave: !Not
+    - !Equals 
+      - !Ref "AWS::Region"
+      - eu-west-1
+
+##########################
+## Mapping
+##########################
+Mappings:
+  RegionMap:
+    eu-west-1:
+      AMI: ami-00f322db8653b7c63
+      MariadbNumer: 1
+    eu-west-2:
+      AMI: ami-047c5765bcd79b6cf
+      MariadbNumer: 2
+    eu-west-3:
+      AMI: ami-0ada4cf316d598462
+      MariadbNumer: 3
+
+##########################
+## Resources
+##########################
 Resources:
-  MyEC2Instance:
-    Type: "AWS::EC2::Instance"
-    Properties: 
-      ImageId: "ami-0ff8a91507f77f867"
-      InstanceType: t2.micro
-      KeyName: testkey
-      BlockDeviceMappings:
-        -
-          DeviceName: /dev/sdm
-          Ebs:
-            VolumeType: io1
-            Iops: 200
-            DeleteOnTermination: false
-            VolumeSize: 20
-  MyEIP:
-    Type: AWS::EC2::EIP
+  MyVPC:
+    Type: 'AWS::EC2::VPC'
     Properties:
-      InstanceId: !Ref MyEC2Instance
+      CidrBlock: !Join
+          - ''
+          - - '10.10.1'
+            - !FindInMap [RegionMap, !Ref "AWS::Region", MariadbNumer]
+            - '.0/24'
+      InstanceTenancy: default
+
+  RouteTable:
+    Type: 'AWS::EC2::RouteTable'
+    Properties:
+      VpcId: !Ref MyVPC
+
+  Route:
+    Type: 'AWS::EC2::Route'
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref MyInternetGateway
+      RouteTableId: !Ref RouteTable
+
+  MyInternetGateway:
+    Type: 'AWS::EC2::InternetGateway'
+
+  AttachGateway:
+    Type: 'AWS::EC2::VPCGatewayAttachment'
+    Properties:
+      VpcId: !Ref MyVPC
+      InternetGatewayId: !Ref MyInternetGateway
+
+  VpcSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: Allow SSH access
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 3306
+          ToPort: 3306
+          CidrIp: 0.0.0.0/0
+      VpcId: !Ref MyVPC
+
+  MyPublicRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref RouteTable
+      SubnetId: !Ref MySubnet1
+
+  MySubnet1:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      MapPublicIpOnLaunch: true
+      CidrBlock: !Join
+          - ''
+          - - '10.10.1'
+            - !FindInMap [RegionMap, !Ref "AWS::Region", MariadbNumer]
+            - '.0/24'
+      VpcId: !Ref MyVPC
+
+  MaterMariadb:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      InstanceType: t2.micro
+      KeyName: !Ref KeyName
+      ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", AMI]
+      NetworkInterfaces:
+        - DeviceIndex: '0'
+          PrivateIpAddress: !Join
+              - ''
+              - - '10.10.1'
+                - !FindInMap [RegionMap, !Ref "AWS::Region", MariadbNumer]
+                - '.11'
+                - !FindInMap [RegionMap, !Ref "AWS::Region", MariadbNumer]
+          SubnetId: !Ref MySubnet1
+          GroupSet:
+            - !Ref VpcSecurityGroup
+      UserData:
+        !If 
+          - ConfigureMariadbSlave
+          - Fn::Base64: !Sub |
+              #!/bin/bash
+              /usr/bin/mysql -u root -e "STOP SLAVE; CHANGE MASTER TO MASTER_HOST='10.10.1${MariaNumber}.11${MariaNumber}'; START SLAVE;"
+            - MariaNumber: !FindInMap [RegionMap, eu-west-1, MariadbNumer]
+          - Fn::Base64: !Sub |
+              #!/bin/bash 
+              echo '127.0.0.1 mariadb-master' >> /etc/hosts
+
+  MyPublicIp:
+    Type: 'AWS::EC2::EIP'
+    Properties:
+      InstanceId: !Ref MaterMariadb
+        
+##########################
+## Output
+##########################
+Outputs:
+  Vpc:
+     Value: !Ref MyVPC
+     Export:
+        Name: !Join
+          - ''
+          - - 'Mariadb-vm-'
+            - !FindInMap 
+              - RegionMap
+              - !Ref 'AWS::Region'
+              - MariadbNumer
+            - '-VPC'
+  RouteTable:
+     Value: !Ref RouteTable
+     Export:
+        Name: !Join
+          - ''
+          - - 'Mariadb-vm-'
+            - !FindInMap 
+              - RegionMap
+              - !Ref 'AWS::Region'
+              - MariadbNumer
+            - '-RouteTable'
