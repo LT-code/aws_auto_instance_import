@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: A sample template
+Description: Create an instance in a region
   
 ##########################
 ## StaticParameters
@@ -9,7 +9,12 @@ Parameters:
     Description: >-
       Name of an existing EC2 KeyPair to enable SSH access into the MariaDB web
       server
+    Default: 'mariadb'
     Type: 'AWS::EC2::KeyPair::KeyName'
+
+  MasterRegion:
+    Default: 'eu-west-1'
+    Type: 'String'
 
 ##########################
 ## Conditions
@@ -18,7 +23,7 @@ Conditions:
   ConfigureMariadbSlave: !Not
     - !Equals 
       - !Ref "AWS::Region"
-      - eu-west-1
+      - !Ref MasterRegion
 
 ##########################
 ## Mapping
@@ -27,13 +32,13 @@ Mappings:
   RegionMap:
     eu-west-1:
       AMI: ami-00f322db8653b7c63
-      MariadbNumer: 1
+      MariadbNumer: 11
     eu-west-2:
       AMI: ami-047c5765bcd79b6cf
-      MariadbNumer: 2
+      MariadbNumer: 12
     eu-west-3:
       AMI: ami-0ada4cf316d598462
-      MariadbNumer: 3
+      MariadbNumer: 13
 
 ##########################
 ## Resources
@@ -44,7 +49,7 @@ Resources:
     Properties:
       CidrBlock: !Join
           - ''
-          - - '10.10.1'
+          - - '10.10.'
             - !FindInMap [RegionMap, !Ref "AWS::Region", MariadbNumer]
             - '.0/24'
       InstanceTenancy: default
@@ -97,7 +102,7 @@ Resources:
       MapPublicIpOnLaunch: true
       CidrBlock: !Join
           - ''
-          - - '10.10.1'
+          - - '10.10.'
             - !FindInMap [RegionMap, !Ref "AWS::Region", MariadbNumer]
             - '.0/24'
       VpcId: !Ref MyVPC
@@ -112,9 +117,9 @@ Resources:
         - DeviceIndex: '0'
           PrivateIpAddress: !Join
               - ''
-              - - '10.10.1'
+              - - '10.10.'
                 - !FindInMap [RegionMap, !Ref "AWS::Region", MariadbNumer]
-                - '.11'
+                - '.1'
                 - !FindInMap [RegionMap, !Ref "AWS::Region", MariadbNumer]
           SubnetId: !Ref MySubnet1
           GroupSet:
@@ -122,10 +127,11 @@ Resources:
       UserData:
         !If 
           - ConfigureMariadbSlave
-          - Fn::Base64: !Sub |
+          - Fn::Base64: !Sub
+            - |
               #!/bin/bash
-              /usr/bin/mysql -u root -e "STOP SLAVE; CHANGE MASTER TO MASTER_HOST='10.10.1${MariaNumber}.11${MariaNumber}'; START SLAVE;"
-            - MariaNumber: !FindInMap [RegionMap, eu-west-1, MariadbNumer]
+              /usr/bin/mysql -u root -e "STOP SLAVE; CHANGE MASTER TO MASTER_HOST='10.10.${MariaNumber}.1${MariaNumber}'; START SLAVE;"
+            - MariaNumber: !FindInMap [RegionMap, !Ref MasterRegion, MariadbNumer]
           - Fn::Base64: !Sub |
               #!/bin/bash 
               echo '127.0.0.1 mariadb-master' >> /etc/hosts
@@ -142,22 +148,8 @@ Outputs:
   Vpc:
      Value: !Ref MyVPC
      Export:
-        Name: !Join
-          - ''
-          - - 'Mariadb-vm-'
-            - !FindInMap 
-              - RegionMap
-              - !Ref 'AWS::Region'
-              - MariadbNumer
-            - '-VPC'
+        Name: 'MariadbVmVPC'
   RouteTable:
      Value: !Ref RouteTable
      Export:
-        Name: !Join
-          - ''
-          - - 'Mariadb-vm-'
-            - !FindInMap 
-              - RegionMap
-              - !Ref 'AWS::Region'
-              - MariadbNumer
-            - '-RouteTable'
+        Name: 'MariadbVmRouteTable'

@@ -42,4 +42,4 @@ curl -L -X PUT -T "${sourceFilePath}" \
  #-H "Date: ${dateValue}" \
  #-H "Content-Type: ${contentType}" \
  #https://s3.amazonaws.com/${bucket}/${filePathAtS3}
-
+kkkkk

@@ -1,0 +1,40 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: VPC peering connection plus route to connect instance throught regions
+  
+##########################
+## StaticParameters
+##########################
+Parameters:
+  MasterRegion:
+    Type: 'String'
+  MasterVpcId:
+    Type: 'AWS::EC2::VPC::Id'
+
+##########################
+## Resources
+##########################
+Resources:
+  MyVPCPeering:
+    Type: AWS::EC2::VPCPeeringConnection
+    Properties: 
+      PeerRegion: !Ref MasterRegion
+      PeerVpcId: !Ref MasterVpcId
+      VpcId:
+        Fn::ImportValue: MariadbVmVPC
+
+  Route:
+    Type: 'AWS::EC2::Route'
+    Properties:
+      DestinationCidrBlock: 10.10.11.111/32
+      VpcPeeringConnectionId": !Ref MyVPCPeering
+      RouteTableId:
+        Fn::ImportValue: MariadbVmRouteTable
+
+##########################
+## Output
+##########################
+Outputs:
+  VPCPeering:
+     Value: !Ref MyVPCPeering
+     Export:
+        Name: 'MariadbVmVPCPeeringConnection'
