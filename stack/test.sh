@@ -1,10 +1,9 @@
-REGIONS=( "eu-west-1" "eu-west-2" "eu-west-3" )
-MASTER_REGION=${REGIONS[0]}
+REGIONS=$1
+MASTER_REGION=${REGIONS[$2]}
+MASTER_PASSWORD=$3
+SLAVE_PASSWORD=$4
 
 TEST_VALUE="test-replication-presentation-$(date +"%d%m%Y%H%M%S")"
-
-MASTER_PASSWORD="nXr^3t7Ck%XLD.&*"
-SLAVE_PASSWORD="MotDePasse"
 
 get_public_ip() {
   aws ec2 describe-addresses \

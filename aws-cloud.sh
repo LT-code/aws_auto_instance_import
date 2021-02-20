@@ -1,45 +1,27 @@
 #!/bin/bash
-# Use curl command to upload file at S3 bucket.
-#upload to S3 bucket 
-sourceFilePath="/mnt/isofiles/briks/images/100/vm-100-disk-0.qcow2";
 
-#file path at S3
-filePathAtS3="111.qcow2";
+REGIONS=( "eu-west-1" "eu-west-2" "eu-west-3" )
+REGIONS_IP_NUM=( "11" "12" "13" )
+MASTER_NUM=0
 
-#Your S3 bucket name
-bucket="proxmox-mariadb-images";
+## Test
+MASTER_PASSWORD="nXr^3t7Ck%XLD.&*"
+SLAVE_PASSWORD="MotDePasse"
 
-#S3 HTTP Resource URL for your file
-resource="/${bucket}/${filePathAtS3}";
 
-#set content type
-#contentType="application/zip";
+./import/import.sh 
 
-#get date as RFC 7231 format
-dateValue=`date -jnu +%a,\ %d\ %h\ %Y\ %T\ %Z`;
+./stack/create.sh \
+  $REGIONS \
+  $REGIONS_IP_NUM \
+  $MASTER_NUM 
 
-#String to generate signature
-stringToSign="PUT\n\n${contentType}\n${dateValue}\n${resource}";
+./stack/delete.sh \
+  $REGIONS \
+  $NASTER_NUM
 
-#your S3 key. This is specific to S3. This is not your AWS username.
-s3Key="";
-
-#your S3 secret. This is specific to S3. This is not your AWS password.
-s3Secret="";
-
-#Generate signature, Amazon re-calculates the signature and compares if it matches the one that was contained in your request. That way the secret access key never needs to be transmitted over the network.
-signature=`echo -en ${stringToSign} | openssl sha1 -hmac ${s3Secret} -binary | base64`;
-
-##Use curl to make PUT request. 
-#curl -L -X PUT -T "${sourceFilePath}" \
-# -H "Host: s3.amazonaws.com" \
-# -H "Date: ${dateValue}" \
-# -H "Content-Type: ${contentType}" \
-# https://proxmox-mariadb-images.s3.amazonaws.com/${filePathAtS3}
-curl -L -X PUT -T "${sourceFilePath}" \
- -H "Authorization: AWS ${s3Key}:${signature}" \
- https://proxmox-mariadb-images.s3.amazonaws.com/${filePathAtS3}
- #-H "Date: ${dateValue}" \
- #-H "Content-Type: ${contentType}" \
- #https://s3.amazonaws.com/${bucket}/${filePathAtS3}
-kkkkk
+./stack/test.sh \
+  $REGIONS \
+  $MASTER_NUM \
+  $MASTER_PASSWORD \
+  $SLAVE_PASSWORD
