@@ -1,4 +1,4 @@
-REGIONS=$1
+REGIONS=( $1 )
 MASTER_REGION=${REGIONS[$2]}
 
 LIST_VPC_PEERING_CONNECTIONS=( $(aws ec2 describe-vpc-peering-connections \

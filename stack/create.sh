@@ -4,8 +4,8 @@ MASTER_REGION=${REGIONS[$3]}
 MASTER_IP_NUM=${REGIONS_IP_NUM[$3]}
 REGIONS_AMI_IDS=( $4 )
 
-EXPORT_CF_VAR_VPC=MariadbVmVPC
-EXPORT_CF_VAR_ROUTE_TABLE=MariadbVmRouteTable
+EXPORT_CF_VAR_VPC='MariadbVmVPC'
+EXPORT_CF_VAR_ROUTE_TABLE='MariadbVmRouteTable'
 
 #################################
 ## Running install stack
@@ -16,7 +16,7 @@ for i in "${!REGIONS[@]}";
 do 
     aws cloudformation create-stack --stack-name mariadb \
         --template-url https://s3-eu-west-1.amazonaws.com/vm-import-images-epitech-tcloud901-vm111-presentation/aws-mariadb.yml \
-        --parameters ParameterKey=KeyName,ParameterValue=mariadb ParameterKey=AMIID,ParameterValue=${REGIONS_AMI_IDS[$i]}\
+        --parameters ParameterKey=KeyName,ParameterValue=mariadb ParameterKey=AMIID,ParameterValue=${REGIONS_AMI_IDS[$i]} \
         --region ${REGIONS[$i]}
 done
 
@@ -55,10 +55,12 @@ do
                         --output text \
                         --query "VpcPeeringConnection.{VpcPeeringConnectionId:VpcPeeringConnectionId}" \
                         --region ${REGIONS[$i]})
+		echo $VPC_PEERING_ID
 
                 STEP_VPC_PEERING=$(aws ec2 accept-vpc-peering-connection \
                         --vpc-peering-connection-id $VPC_PEERING_ID \
                         --region $MASTER_REGION)
+		echo $STEP_VPC_PEERING
 
                 #################################
                 ## Create Route in RouteTable
@@ -68,11 +70,13 @@ do
                         --destination-cidr-block 10.10.${REGIONS_IP_NUM[$i]}.1${REGIONS_IP_NUM[$i]}/32 \
                         --vpc-peering-connection-id $VPC_PEERING_ID \
                         --region $MASTER_REGION)
+		echo $STEP_ROUTE_MASTER
 
                 STEP_ROUTE_SLAVE=$(aws ec2 create-route \
                         --route-table-id $(get_export_variable ${REGIONS[$i]} $EXPORT_CF_VAR_ROUTE_TABLE) \
                         --destination-cidr-block 10.10.$MASTER_IP_NUM.1$MASTER_IP_NUM/32 \
                         --vpc-peering-connection-id $VPC_PEERING_ID \
                         --region ${REGIONS[$i]})
+		echo $STEP_ROUTE_SLAVE
         fi
 done
