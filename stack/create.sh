@@ -1,8 +1,9 @@
+#!/bin/bash
+
 REGIONS=( $1 )
 REGIONS_IP_NUM=( $2 )
 MASTER_REGION=${REGIONS[$3]}
 MASTER_IP_NUM=${REGIONS_IP_NUM[$3]}
-REGIONS_AMI_IDS=( $4 )
 
 EXPORT_CF_VAR_VPC='MariadbVmVPC'
 EXPORT_CF_VAR_ROUTE_TABLE='MariadbVmRouteTable'
@@ -11,12 +12,20 @@ EXPORT_CF_VAR_ROUTE_TABLE='MariadbVmRouteTable'
 ## Running install stack
 #################################
 
+ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+
 ## run all instance an all europe regions
 for i in "${!REGIONS[@]}";
 do 
+    AMIID=$(aws ec2 describe-images \
+      --owners $ACCOUNT_ID \
+      --query "Images[*].ImageId" \
+      --region ${REGIONS[$i]} \
+      --output text)
+
     aws cloudformation create-stack --stack-name mariadb \
-        --template-url https://s3-eu-west-1.amazonaws.com/vm-import-images-epitech-tcloud901-vm111-presentation/aws-mariadb.yml \
-        --parameters ParameterKey=KeyName,ParameterValue=mariadb ParameterKey=AMIID,ParameterValue=${REGIONS_AMI_IDS[$i]} \
+        --template-url https://s3-eu-west-1.amazonaws.com/$BUCKET_NAME${REGIONS_IP_NUM[$i]}/aws-mariadb.yml \
+        --parameters ParameterKey=KeyName,ParameterValue=mariadb ParameterKey=AMIID,ParameterValue=$AMIID ParameterKey=MariaNumber,ParameterValue=${REGIONS_IP_NUM[$i]} \
         --region ${REGIONS[$i]}
 done
 

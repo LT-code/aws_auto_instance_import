@@ -2,7 +2,11 @@
 
 REGIONS=( $1 )
 REGIONS_IP_NUM=( $2 )
-BUCKET_NAME=vm-import-images-epitech-tcloud901-presentation-vm1
+BUCKET_NAME=$3
+
+./import/create-role-policy.sh \
+  "$REGIONS_IP_NUM" \
+  "$BUCKET_NAME"
 
 aws iam create-role --role-name vmimport --assume-role-policy-document "file://import/trust-policy.json"
 aws iam put-role-policy --role-name vmimport --policy-name vmimport --policy-document "file://import/role-policy.json"

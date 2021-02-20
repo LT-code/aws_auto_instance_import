@@ -1,3 +1,5 @@
+#!/bin/bash
+
 REGIONS=( $1 )
 MASTER_REGION=${REGIONS[$2]}
 MASTER_PASSWORD=$3

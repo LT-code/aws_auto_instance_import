@@ -3,7 +3,7 @@
     "Description": "Slave 1 mariadb",
     "Format": "raw",
     "UserBucket": {
-   "S3Bucket" : "vm-import-images-epitech-tcloud901-presentation-vm112",
+   "S3Bucket" : "to-change",
         "S3Key": "112.raw"
     }
   }
