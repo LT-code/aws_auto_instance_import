@@ -3,7 +3,7 @@
     "Description": "Master mariadb",
     "Format": "raw",
     "UserBucket": {
-   "S3Bucket" : "",
+   "S3Bucket" : "to-change",
         "S3Key": "111.raw"
     }
   }
