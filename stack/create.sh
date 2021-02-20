@@ -1,7 +1,8 @@
-REGIONS=$1
-REGIONS_IP_NUM=$2
+REGIONS=( $1 )
+REGIONS_IP_NUM=( $2 )
 MASTER_REGION=${REGIONS[$3]}
 MASTER_IP_NUM=${REGIONS_IP_NUM[$3]}
+REGIONS_AMI_IDS=( $4 )
 
 EXPORT_CF_VAR_VPC=MariadbVmVPC
 EXPORT_CF_VAR_ROUTE_TABLE=MariadbVmRouteTable
@@ -11,12 +12,12 @@ EXPORT_CF_VAR_ROUTE_TABLE=MariadbVmRouteTable
 #################################
 
 ## run all instance an all europe regions
-for i in "${REGIONS[@]}";
+for i in "${!REGIONS[@]}";
 do 
     aws cloudformation create-stack --stack-name mariadb \
-        --template-url https://s3-eu-west-1.amazonaws.com/vm-import-images-epitech-tcloud901-vm111/aws-mariadb.yml \
-        --parameters ParameterKey=KeyName,ParameterValue=mariadb \
-        --region $i
+        --template-url https://s3-eu-west-1.amazonaws.com/vm-import-images-epitech-tcloud901-vm111-presentation/aws-mariadb.yml \
+        --parameters ParameterKey=KeyName,ParameterValue=mariadb ParameterKey=AMIID,ParameterValue=${REGIONS_AMI_IDS[$i]}\
+        --region ${REGIONS[$i]}
 done
 
 ## wait for all stack to be finished

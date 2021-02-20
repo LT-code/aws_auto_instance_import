@@ -16,6 +16,10 @@ Parameters:
     Default: 'eu-west-1'
     Type: 'String'
 
+  AMIID:
+    Type: 'String'
+
+
 ##########################
 ## Conditions
 ##########################
@@ -31,13 +35,10 @@ Conditions:
 Mappings:
   RegionMap:
     eu-west-1:
-      AMI: ami-00f322db8653b7c63
       MariadbNumer: 11
     eu-west-2:
-      AMI: ami-047c5765bcd79b6cf
       MariadbNumer: 12
     eu-west-3:
-      AMI: ami-0ada4cf316d598462
       MariadbNumer: 13
 
 ##########################
@@ -112,7 +113,7 @@ Resources:
     Properties:
       InstanceType: t2.micro
       KeyName: !Ref KeyName
-      ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", AMI]
+      ImageId: !Ref AMIID
       NetworkInterfaces:
         - DeviceIndex: '0'
           PrivateIpAddress: !Join
