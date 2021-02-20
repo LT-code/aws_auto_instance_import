@@ -19,6 +19,9 @@ Parameters:
   AMIID:
     Type: 'String'
 
+  MariaNumber:
+    Type: 'String'
+
 
 ##########################
 ## Conditions
@@ -28,19 +31,7 @@ Conditions:
     - !Equals 
       - !Ref "AWS::Region"
       - !Ref MasterRegion
-
-##########################
-## Mapping
-##########################
-Mappings:
-  RegionMap:
-    eu-west-1:
-      MariadbNumer: 11
-    eu-west-2:
-      MariadbNumer: 12
-    eu-west-3:
-      MariadbNumer: 13
-
+        
 ##########################
 ## Resources
 ##########################
@@ -51,7 +42,7 @@ Resources:
       CidrBlock: !Join
           - ''
           - - '10.10.'
-            - !FindInMap [RegionMap, !Ref "AWS::Region", MariadbNumer]
+            - !Ref MariaNumber
             - '.0/24'
       InstanceTenancy: default
 
@@ -104,11 +95,11 @@ Resources:
       CidrBlock: !Join
           - ''
           - - '10.10.'
-            - !FindInMap [RegionMap, !Ref "AWS::Region", MariadbNumer]
+            - !Ref MariaNumber
             - '.0/24'
       VpcId: !Ref MyVPC
 
-  MaterMariadb:
+  MasterMariadb:
     Type: 'AWS::EC2::Instance'
     Properties:
       InstanceType: t2.micro
@@ -119,9 +110,9 @@ Resources:
           PrivateIpAddress: !Join
               - ''
               - - '10.10.'
-                - !FindInMap [RegionMap, !Ref "AWS::Region", MariadbNumer]
+                - !Ref MariaNumber
                 - '.1'
-                - !FindInMap [RegionMap, !Ref "AWS::Region", MariadbNumer]
+                - !Ref MariaNumber
           SubnetId: !Ref MySubnet1
           GroupSet:
             - !Ref VpcSecurityGroup
@@ -132,7 +123,7 @@ Resources:
             - |
               #!/bin/bash
               /usr/bin/mysql -u root -e "STOP SLAVE; CHANGE MASTER TO MASTER_HOST='10.10.${MariaNumber}.1${MariaNumber}'; START SLAVE;"
-            - MariaNumber: !FindInMap [RegionMap, !Ref MasterRegion, MariadbNumer]
+            - MariaNumber: !Ref MariaNumber
           - Fn::Base64: !Sub |
               #!/bin/bash 
               echo '127.0.0.1 mariadb-master' >> /etc/hosts
