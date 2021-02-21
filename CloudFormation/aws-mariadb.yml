@@ -121,6 +121,7 @@ Resources:
           - Fn::Base64: !Sub
             - |
               #!/bin/bash
+              sleep 3
               /usr/bin/mysql -u root -e "STOP SLAVE; CHANGE MASTER TO MASTER_HOST='10.10.${MariaNumber}.1${MariaNumber}'; START SLAVE;"
             - MariaNumber: !Ref MariaNumber
           - Fn::Base64: !Sub |
