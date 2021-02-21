@@ -6,7 +6,7 @@ TEST_VALUE="test-replication-presentation-$(date +"%d%m%Y%H%M%S")"
 
 get_public_ip() {
   aws ec2 describe-addresses \
-      --filters Name=tag:aws:cloudformation:stack-name,Values=$STASK_NAME \
+      --filters Name=tag:aws:cloudformation:stack-name,Values=$STACK_NAME \
       --query "Addresses[*].PublicIp" \
       --output text \
       --region $1
