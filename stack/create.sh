@@ -24,6 +24,7 @@ do
     aws ec2 create-key-pair \
       --key-name $KEY_NAME \
       --query "KeyMaterial" \
+      --region ${REGIONS[$i]} \
       --output text > $KEY_NAME.pem
 
     aws cloudformation create-stack --stack-name $STACK_NAME${REGIONS_IP_NUM[$i]} \
