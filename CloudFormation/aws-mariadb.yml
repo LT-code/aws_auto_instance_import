@@ -139,8 +139,14 @@ Outputs:
   Vpc:
      Value: !Ref MyVPC
      Export:
-        Name: 'MariadbVmVPC'
+        Name: !Join
+              - ''
+              - - 'MariadbVmVPC'
+                - !Ref MariaNumber
   RouteTable:
      Value: !Ref RouteTable
      Export:
-        Name: 'MariadbVmRouteTable'
+        Name: !Join
+              - ''
+              - - 'MariadbVmRouteTable'
+                - !Ref MariaNumber

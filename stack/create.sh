@@ -51,8 +51,8 @@ get_export_variable()
 
 }
 
-MASTER_VPC=$(get_export_variable $MASTER_REGION $EXPORT_CF_VAR_VPC)
-MASTER_ROUTE_TABLE=$(get_export_variable $MASTER_REGION $EXPORT_CF_VAR_ROUTE_TABLE)
+MASTER_VPC=$(get_export_variable $MASTER_REGION $EXPORT_CF_VAR_VPC$MASTER_IP_NUM)
+MASTER_ROUTE_TABLE=$(get_export_variable $MASTER_REGION $EXPORT_CF_VAR_ROUTE_TABLE$MASTER_IP_NUM)
 
 for i in "${!REGIONS[@]}";
 do
@@ -61,7 +61,7 @@ do
     ## VPC Peering Connection
     #################################
     VPC_PEERING_ID=$(aws ec2 create-vpc-peering-connection \
-            --vpc-id $(get_export_variable ${REGIONS[$i]} $EXPORT_CF_VAR_VPC) \
+            --vpc-id $(get_export_variable ${REGIONS[$i]} $EXPORT_CF_VAR_VPC${REGIONS_IP_NUM[$i]}) \
             --peer-vpc-id $MASTER_VPC  \
             --peer-region $MASTER_REGION \
             --output text \
@@ -88,7 +88,7 @@ do
 		echo $STEP_ROUTE_MASTER
 
     STEP_ROUTE_SLAVE=$(aws ec2 create-route \
-            --route-table-id $(get_export_variable ${REGIONS[$i]} $EXPORT_CF_VAR_ROUTE_TABLE) \
+            --route-table-id $(get_export_variable ${REGIONS[$i]} $EXPORT_CF_VAR_ROUTE_TABLE${REGIONS_IP_NUM[$i]}) \
             --destination-cidr-block 10.10.$MASTER_IP_NUM.1$MASTER_IP_NUM/32 \
             --vpc-peering-connection-id $VPC_PEERING_ID \
             --region ${REGIONS[$i]})
