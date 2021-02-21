@@ -22,10 +22,10 @@ do
 	#qemu-img convert /mnt/isofiles/briks/images/1$IP/vm-1$IP-disk-0.qcow2 ./1$IP.raw
 
 	aws s3 mb \
-    s3://vm-import-images-epitech-tcloud901-vm1$IP \
+    s3://$BUCKET_NAME$IP \
     --region ${REGIONS[$i]}
 
-  if [ "$MASTER_REGION" = "${REGIONS[$i]}"]; then
+  if [ "$MASTER_REGION" = "${REGIONS[$i]}" ]; then
     aws s3 cp \
       CloudFormation/aws-mariadb.yml \
       s3://$BUCKET_NAME$MASTER_IP_NUM/aws-mariadb.yml
