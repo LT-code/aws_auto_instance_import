@@ -31,7 +31,7 @@ do
     sed -i "/S3Bucket/c\   \"S3Bucket\" : \"$BUCKET_NAME$IP\"," "import/vm-1$IP-import.json"
 
 	  echo "############## vm 1$IP"
-	  #qemu-img convert /mnt/isofiles/briks/images/$IMAGE_NAME/vm-$IMAGE_NAME-disk-0.qcow2 ./$IMAGE_NAME.raw
+	  #qemu-img convert /mnt/isofiles/briks/images/${IMAGE_NAME[$i]}/vm-${IMAGE_NAME[$i]}-disk-0.qcow2 ./${IMAGE_NAME[$i]}.raw
 
     # create s3 bucket
 	  aws s3 mb \
@@ -46,8 +46,8 @@ do
 
     # copy vm to s3 bucket
 	  aws s3 cp \
-      ./$IMAGE_NAME.raw \
-      s3://$BUCKET_NAME$IP/$IMAGE_NAME.raw
+      ./${IMAGE_NAME[$i]}.raw \
+      s3://$BUCKET_NAME$IP/${IMAGE_NAME[$i]}.raw
 
     IMPORT_TASK_ID+=($(aws ec2 import-image \
       --region ${REGIONS[$i]} \
@@ -68,7 +68,9 @@ do
       --import-task-ids ${IMPORT_TASK_ID[$i]} \
       --query "ImportImageTasks[*].Status"
       --region ${REGIONS[$i]})
+    sleep 1
   done
+  
   echo $RES
 done
 
