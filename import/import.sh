@@ -59,7 +59,7 @@ done
 ################################
 # wait for import task to finish
 ################################
-for $i in "${!REGIONS[@]}";
+for i in "${!REGIONS[@]}";
 do
   RES="active"
   while [ "$RES" = "active"]
