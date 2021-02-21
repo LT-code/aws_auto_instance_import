@@ -58,3 +58,16 @@ done
 
 # monitoring import
 #aws ec2 describe-import-image-tasks --import-task-ids import-ami-1234567890abcdef0
+AMIID=""
+ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+for i in "${!REGIONS[@]}";
+do
+	while [ "$AMIID" = "" ]
+	do
+	  AMIID=$(aws ec2 describe-images \
+	    --owners $ACCOUNT_ID \
+	    --query "Images[*].ImageId" \
+	    --region ${REGIONS[$i]} \
+	    --output text)
+	done
+done
