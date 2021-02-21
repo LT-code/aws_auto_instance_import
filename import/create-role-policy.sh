@@ -1,5 +1,7 @@
 . $(echo $1)
 
+FILENAME=import/role-policy.json
+
 print_buckets()
 {
   for i in "${REGIONS_IP_NUM[@]}";
