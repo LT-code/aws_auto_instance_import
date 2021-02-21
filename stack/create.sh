@@ -72,6 +72,7 @@ do
             --region ${REGIONS[$i]})
 
 		echo $VPC_PEERING_ID
+    sleep 2
 
     STEP_VPC_PEERING=$(aws ec2 accept-vpc-peering-connection \
             --vpc-peering-connection-id $VPC_PEERING_ID \
