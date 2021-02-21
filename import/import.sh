@@ -19,21 +19,21 @@ do
 
 
 	echo "############## vm 1$IP"
-	qemu-img convert /mnt/isofiles/briks/images/1$IP/vm-1$IP-disk-0.qcow2 ./1$IP.raw
+	#qemu-img convert /mnt/isofiles/briks/images/1$IP/vm-1$IP-disk-0.qcow2 ./1$IP.raw
 
 	aws s3 mb \
     s3://vm-import-images-epitech-tcloud901-vm1$IP \
     --region ${REGIONS[$i]}
 
-  if [ "$MASTER_REGION" = "$i"]; then
+  if [ "$MASTER_REGION" = "${REGIONS[$i]}"]; then
     aws s3 cp \
       CloudFormation/aws-mariadb.yml \
       s3://$BUCKET_NAME$MASTER_IP_NUM/aws-mariadb.yml
   fi
 
 	aws s3 cp \
-    ./1$i.raw \
-    s3://$BUCKET_NAME$i/1$i.raw
+    ./1$IP.raw \
+    s3://$BUCKET_NAME$IP/1$IP.raw
 
 	aws ec2 import-image \
     --region ${REGIONS[$i]} \
