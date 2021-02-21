@@ -1,9 +1,6 @@
 #!/bin/bash
 
-REGIONS=( $1 )
-REGIONS_IP_NUM=( $2 )
-MASTER_NUM=$3
-BUCKET_NAME=$4
+. $(echo $1)
 
 ./import/create-role-policy.sh \
   "$REGIONS_IP_NUM" \
