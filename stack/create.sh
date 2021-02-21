@@ -1,9 +1,6 @@
 #!/bin/bash
 
-REGIONS=( $1 )
-REGIONS_IP_NUM=( $2 )
-MASTER_REGION=${REGIONS[$3]}
-MASTER_IP_NUM=${REGIONS_IP_NUM[$3]}
+. $(echo $1)
 
 EXPORT_CF_VAR_VPC='MariadbVmVPC'
 EXPORT_CF_VAR_ROUTE_TABLE='MariadbVmRouteTable'
@@ -23,16 +20,16 @@ do
       --region ${REGIONS[$i]} \
       --output text)
 
-    aws cloudformation create-stack --stack-name mariadb \
-        --template-url https://s3-eu-west-1.amazonaws.com/$BUCKET_NAME${REGIONS_IP_NUM[$i]}/aws-mariadb.yml \
-        --parameters ParameterKey=KeyName,ParameterValue=mariadb ParameterKey=AMIID,ParameterValue=$AMIID ParameterKey=MariaNumber,ParameterValue=${REGIONS_IP_NUM[$i]} \
+    aws cloudformation create-stack --stack-name $STASK_NAME \
+        --template-url https://s3-$MASTER_REGION.amazonaws.com/$BUCKET_NAME${REGIONS_IP_NUM[$i]}/aws-mariadb.yml \
+        --parameters ParameterKey=KeyName,ParameterValue=mariadb ParameterKey=AMIID,ParameterValue=$AMIID ParameterKey=MariaNumber,ParameterValue=${REGIONS_IP_NUM[$i]} ParameterKey=MasterRegion,ParameterValue=$MASTER_REGION \
         --region ${REGIONS[$i]}
 done
 
 ## wait for all stack to be finished
 for i in "${REGIONS[@]}";
 do
-    aws cloudformation wait stack-create-complete --stack-name mariadb --region $i
+    aws cloudformation wait stack-create-complete --stack-name $STASK_NAME --region $i
 done
 
 #################################
@@ -50,7 +47,6 @@ get_export_variable()
 MASTER_VPC=$(get_export_variable $MASTER_REGION $EXPORT_CF_VAR_VPC)
 MASTER_ROUTE_TABLE=$(get_export_variable $MASTER_REGION $EXPORT_CF_VAR_ROUTE_TABLE)
 
-#for i in "${REGIONS[@]}";
 for i in "${!REGIONS[@]}";
 do
         if [ "${REGIONS[$i]}" != "$MASTER_REGION" ]; then

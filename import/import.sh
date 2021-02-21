@@ -2,7 +2,8 @@
 
 REGIONS=( $1 )
 REGIONS_IP_NUM=( $2 )
-BUCKET_NAME=$3
+MASTER_NUM=$3
+BUCKET_NAME=$4
 
 ./import/create-role-policy.sh \
   "$REGIONS_IP_NUM" \
@@ -10,6 +11,10 @@ BUCKET_NAME=$3
 
 aws iam create-role --role-name vmimport --assume-role-policy-document "file://import/trust-policy.json"
 aws iam put-role-policy --role-name vmimport --policy-name vmimport --policy-document "file://import/role-policy.json"
+
+aws s3 cp \
+  CloudFormation/aws-mariadb.yml \
+  s3://$BUCKET_NAME${REGIONS_IP_NUM[$MASTER_NUM]}/aws-mariadb.yml
 
 for i in "${!REGIONS[@]}";
 do
@@ -35,9 +40,6 @@ do
     --disk-containers "file://import/vm-1$IP-import.json"
 done
 
-aws s3 cp \
-  CloudFormation/aws-mariadb.yml \
-  s3://$BUCKET_NAME$i/aws-mariadb.yml
 
 # monitoring import
 #aws ec2 describe-import-image-tasks --import-task-ids import-ami-1234567890abcdef0

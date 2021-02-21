@@ -1,15 +1,12 @@
 #!/bin/bash
 
-REGIONS=( $1 )
-MASTER_REGION=${REGIONS[$2]}
-MASTER_PASSWORD=$3
-SLAVE_PASSWORD=$4
+. $(echo $1)
 
 TEST_VALUE="test-replication-presentation-$(date +"%d%m%Y%H%M%S")"
 
 get_public_ip() {
   aws ec2 describe-addresses \
-      --filters Name=tag:aws:cloudformation:stack-name,Values=mariadb \
+      --filters Name=tag:aws:cloudformation:stack-name,Values=$STASK_NAME \
       --query "Addresses[*].PublicIp" \
       --output text \
       --region $1

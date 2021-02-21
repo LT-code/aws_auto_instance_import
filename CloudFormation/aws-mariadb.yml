@@ -13,7 +13,6 @@ Parameters:
     Type: 'AWS::EC2::KeyPair::KeyName'
 
   MasterRegion:
-    Default: 'eu-west-1'
     Type: 'String'
 
   AMIID:

@@ -1,44 +1,20 @@
 #!/bin/bash
-#PACKAGE_TO_INSTALL=jq mariadb-client awcli
-
-REGIONS='eu-west-1 eu-west-2 eu-west-3'
-REGIONS_IP_NUM='11 12 13'
-MASTER_NUM=0
-
-## S3
-BUCKET_NAME=vm-import-images-epitech-tcloud901-presentation-vm1
-
-## Test
-MASTER_PASSWORD="nXr^3t7Ck%XLD.&*"
-SLAVE_PASSWORD="MotDePasse"
-
+######################################################
+# Parameters
+######################################################
 
  case "$1" in
  "import")
-     ./import/import.sh 
-       "$REGIONS" \
-       "$REGIONS_IP_NUM" \
-       "$BUCKET_NAME"
+     RUN="./import/import.sh $2"
      ;;
  "create")
-
-     ./stack/create.sh \
-       "$REGIONS" \
-       "$REGIONS_IP_NUM" \
-       "$MASTER_NUM" \
-       "$REGIONS_AMI_IDS" 
+     RUN="./stack/create.sh $2"
      ;;
  "test")
-     ./stack/test.sh \
-       "$REGIONS" \
-       "$MASTER_NUM" \
-       "$MASTER_PASSWORD" \
-       "$SLAVE_PASSWORD"
+     RUN="./stack/test.sh $2"
      ;;
  "delete")
-     ./stack/delete.sh \
-       "$REGIONS" \
-       "$NASTER_NUM"
+     RUN="./stack/delete.sh $2"
      ;;
  *)
      echo "Parameters:
@@ -46,5 +22,18 @@ SLAVE_PASSWORD="MotDePasse"
      - create
      - test
      - delete"
+     exit -1
      ;;
  esac
+
+
+if [ ! -f "$2" ]; then
+    if [ "$2" = "" ]; then
+      echo "Configuration filename is require."
+    else
+      echo "'$2' does not exist."
+    fi
+    exit -1
+fi
+
+sh -c "$RUN"

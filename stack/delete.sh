@@ -1,7 +1,6 @@
 #!/bin/bash
 
-REGIONS=( $1 )
-MASTER_REGION=${REGIONS[$2]}
+. $(echo $1)
 
 LIST_VPC_PEERING_CONNECTIONS=( $(aws ec2 describe-vpc-peering-connections \
         --query "VpcPeeringConnections[*].VpcPeeringConnectionId" \
@@ -20,7 +19,7 @@ done
 for i in "${REGIONS[@]}";
 do
   aws cloudformation delete-stack \
-    --stack-name mariadb \
+    --stack-name $STASK_NAME \
     --region $i
 done
 
@@ -28,7 +27,7 @@ done
 for i in "${REGIONS[@]}";
 do
         aws cloudformation wait stack-delete-complete \
-                --stack-name mariadb \
+                --stack-name $STASK_NAME \
                 --region $i
 
         VOLUMES=( $(aws ec2 describe-volumes \
