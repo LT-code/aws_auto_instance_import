@@ -9,13 +9,11 @@
 aws iam create-role --role-name vmimport --assume-role-policy-document "file://import/trust-policy.json"
 aws iam put-role-policy --role-name vmimport --policy-name vmimport --policy-document "file://import/role-policy.json"
 
-aws s3 cp \
-  CloudFormation/aws-mariadb.yml \
-  s3://$BUCKET_NAME${REGIONS_IP_NUM[$MASTER_NUM]}/aws-mariadb.yml
 
 for i in "${!REGIONS[@]}";
 do
   IP=${REGIONS_IP_NUM[$i]}
+  echo $IP
 
   sed -i "/S3Bucket/c\   \"S3Bucket\" : \"$BUCKET_NAME$IP\"," "import/vm-1$IP-import.json"
 
@@ -26,6 +24,12 @@ do
 	aws s3 mb \
     s3://vm-import-images-epitech-tcloud901-vm1$IP \
     --region ${REGIONS[$i]}
+
+  if [ "$MASTER_REGION" = "$i"]; then
+    aws s3 cp \
+      CloudFormation/aws-mariadb.yml \
+      s3://$BUCKET_NAME$MASTER_IP_NUM/aws-mariadb.yml
+  fi
 
 	aws s3 cp \
     ./1$i.raw \
