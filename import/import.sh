@@ -2,9 +2,7 @@
 
 . $(echo $1)
 
-./import/create-role-policy.sh \
-  "$REGIONS_IP_NUM" \
-  "$BUCKET_NAME"
+./import/create-role-policy.sh $1
 
 aws iam create-role --role-name vmimport --assume-role-policy-document "file://import/trust-policy.json"
 aws iam put-role-policy --role-name vmimport --policy-name vmimport --policy-document "file://import/role-policy.json"

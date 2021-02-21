@@ -1,14 +1,12 @@
-INSTANCES=( $1 )
-BUCKET_NAME=$2
-FILENAME=import/role-policy.json
+. $(echo $1)
 
 print_buckets()
 {
-  for i in "${INSTANCES[@]}";
+  for i in "${REGIONS_IP_NUM[@]}";
   do
     echo "            \"arn:aws:s3:::$BUCKET_NAME$i\"," >> $FILENAME
     printf "            \"arn:aws:s3:::$BUCKET_NAME$i/*\"" >> $FILENAME
-    if [ "$i" != "${INSTANCES[-1]}" ]; then
+    if [ "$i" != "${REGIONS_IP_NUM[-1]}" ]; then
       echo "," >> $FILENAME
     fi
   done
