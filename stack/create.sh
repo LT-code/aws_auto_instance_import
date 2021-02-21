@@ -21,7 +21,8 @@ do
       --output text)
 
     aws cloudformation create-stack --stack-name $STASK_NAME \
-        --template-url https://s3-$MASTER_REGION.amazonaws.com/$BUCKET_NAME${REGIONS_IP_NUM[$i]}/aws-mariadb.yml \
+        --template-url https://raw.githubusercontent.com/LT-code/aws_auto_instance_import/main/CloudFormation/aws-mariadb.yml
+        #--template-url https://s3-$MASTER_REGION.amazonaws.com/$BUCKET_NAME${REGIONS_IP_NUM[$i]}/aws-mariadb.yml \
         --parameters ParameterKey=KeyName,ParameterValue=mariadb ParameterKey=AMIID,ParameterValue=$AMIID ParameterKey=MariaNumber,ParameterValue=${REGIONS_IP_NUM[$i]} ParameterKey=MasterRegion,ParameterValue=$MASTER_REGION \
         --region ${REGIONS[$i]}
 done
