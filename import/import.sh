@@ -56,23 +56,5 @@ do
   fi
 done
 
-################################
-# wait for import task to finish
-################################
-for i in "${!REGIONS[@]}";
-do
-  RES="active"
-  while [ "$RES" = "active"]
-  do
-    RES=$(aws ec2 describe-import-image-tasks \
-      --import-task-ids ${IMPORT_TASK_ID[$i]} \
-      --query "ImportImageTasks[*].Status"
-      --region ${REGIONS[$i]})
-    sleep 1
-  done
-  
-  echo $RES
-done
-
 # monitoring import
 #aws ec2 describe-import-image-tasks --import-task-ids import-ami-1234567890abcdef0
