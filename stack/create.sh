@@ -34,9 +34,11 @@ do
 done
 
 ## wait for all stack to be finished
-for i in "${REGIONS[@]}";
+for i in "${!REGIONS[@]}";
 do
-    aws cloudformation wait stack-create-complete --stack-name $STACK_NAME${REGIONS_IP_NUM[$i]} --region $i
+    aws cloudformation wait stack-create-complete \
+      --stack-name $STACK_NAME${REGIONS_IP_NUM[$i]} \
+      --region ${REGIONS[$i]}
 done
 
 #################################
