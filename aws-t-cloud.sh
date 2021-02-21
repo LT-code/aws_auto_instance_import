@@ -1,9 +1,22 @@
 #!/bin/bash
+
+######################################################
+# Package management
+######################################################
+PACKAGE_NAME=( "mysql" "aws" )
+PACKAGE_REQUIRED=( "mariadb-cient" "awscli" )
+
+for var in ${!PACKAGE_NAME[@]}; do
+  if ! which ${PACKAGE_NAME[$var]} &> /dev/null; then
+      echo "${PACKAGE_REQUIRED[$var]} is not installed"
+      exit -1
+  fi
+done
+
 ######################################################
 # Parameters
 ######################################################
-
- case "$1" in
+case "$1" in
  "import")
      RUN="./import/import.sh $2"
      ;;
