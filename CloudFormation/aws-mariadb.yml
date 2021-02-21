@@ -130,7 +130,7 @@ Resources:
   MyPublicIp:
     Type: 'AWS::EC2::EIP'
     Properties:
-      InstanceId: !Ref MaterMariadb
+      InstanceId: !Ref MasterMariadb
         
 ##########################
 ## Output
