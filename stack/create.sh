@@ -29,7 +29,7 @@ do
 
     aws cloudformation create-stack --stack-name $STACK_NAME${REGIONS_IP_NUM[$i]} \
         --template-url https://s3-$MASTER_REGION.amazonaws.com/$BUCKET_NAME$MASTER_IP_NUM/aws-mariadb.yml \
-        --parameters ParameterKey=KeyName,ParameterValue=$KEY_NAME ParameterKey=AMIID,ParameterValue=$AMIID ParameterKey=MariaNumber,ParameterValue=${REGIONS_IP_NUM[$i]} ParameterKey=MasterRegion,ParameterValue=$MASTER_REGION \
+        --parameters ParameterKey=KeyName,ParameterValue=$KEY_NAME ParameterKey=AMIID,ParameterValue=$AMIID ParameterKey=MariaNumber,ParameterValue=${REGIONS_IP_NUM[$i]} ParameterKey=MasterRegion,ParameterValue=$MASTER_REGION ParameterKey=MasterNumber,ParameterValue=$MASTER_IP_NUM \
         --region ${REGIONS[$i]}
         #--template-url https://raw.githubusercontent.com/LT-code/aws_auto_instance_import/main/CloudFormation/aws-mariadb.yml
 done

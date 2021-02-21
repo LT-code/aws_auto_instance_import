@@ -15,12 +15,14 @@ Parameters:
   MasterRegion:
     Type: 'String'
 
+  MasterNumber:
+    Type: 'String'
+
   AMIID:
     Type: 'String'
 
   MariaNumber:
     Type: 'String'
-
 
 ##########################
 ## Conditions
@@ -122,8 +124,8 @@ Resources:
             - |
               #!/bin/bash
               sleep 3
-              /usr/bin/mysql -u root -e "STOP SLAVE; CHANGE MASTER TO MASTER_HOST='10.10.${MariaNumber}.1${MariaNumber}'; START SLAVE;"
-            - MariaNumber: !Ref MariaNumber
+              /usr/bin/mysql -u root -e "STOP SLAVE; CHANGE MASTER TO MASTER_HOST='10.10.${Master}.1${Master}'; START SLAVE;"
+            - Master: !Ref MasterNumber
           - Fn::Base64: !Sub |
               #!/bin/bash 
               echo '127.0.0.1 mariadb-master' >> /etc/hosts
