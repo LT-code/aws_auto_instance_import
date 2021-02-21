@@ -1,4 +1,7 @@
-#!/bin/bash . $(echo $1) 
+#!/bin/bash 
+
+. $(echo $1) 
+
 EXPORT_CF_VAR_VPC='MariadbVmVPC'
 EXPORT_CF_VAR_ROUTE_TABLE='MariadbVmRouteTable'
 
